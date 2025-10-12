@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hospital Management</title>
-</head>
+    <title> register</title>
 <body bgcolor="lightblue">
 
 <center>
-<h1>User Login</h1>
+<h1>Create an Account</h1>
 <hr>
 
 <!-- Flash messages -->
@@ -22,24 +21,37 @@
     {% endif %}
 {% endwith %}
 
-<form method="POST" action="{{ url_for('auth.login') }}">
+<!-- Simple registration form -->
+<form method="POST" action="{{ url_for('auth.register') }}">
+    Full Name:<br>
+    <input type="text" name="name" placeholder="Enter your full name" required><br><br>
+
     Email:<br>
     <input type="email" name="email" placeholder="Enter your email" required><br><br>
-    
+
     Password:<br>
-    <input type="password" name="password" placeholder="Enter your password" required><br><br>
-    
-    <input type="submit" value="Login">
+    <input type="password" name="password" placeholder="Create a password" required><br><br>
+
+    Contact Number:<br>
+    <input type="text" name="contact" placeholder="Enter your contact number" required><br><br>
+
+    Date of Birth:<br>
+    <input type="date" name="dob" required><br><br>
+
+    Gender:<br>
+    <select name="gender" required>
+        <option value="">Select Gender</option>
+        <option value="M">Male</option>
+        <option value="F">Female</option>
+    </select><br><br>
+
+    <input type="submit" value="Register">
 </form>
 
 <br>
-<!-- Register link -->
-<p>Don’t have an account? <a href="{{ url_for('auth.register') }}">Register here</a></p>
-
-<!-- Back to home link -->
+<p>Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a></p>
 <p><a href="{{ url_for('index') }}">← Back to Home</a></p>
 
-<!-- Optional marquee for fun beginner-style effect -->
 <marquee bgcolor="blue" scrollamount="10">💊 Welcome to Hospital Management System! 💊</marquee>
 
 </center>

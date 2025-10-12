@@ -1,7 +1,8 @@
-from app import app, db
+from app import create_app, db
 from model import User, Department, Doctor, Patient, Appointment, Treatment, Prescription
 from datetime import date, time
 
+app=create_app()
 with app.app_context():
     #first adding the departments
     dept1 = Department(name="Cardiology", description="Heart-related treatments and surgeries.")
@@ -11,25 +12,24 @@ with app.app_context():
 
     #then adding the doctors
     doc1 = User(
-        name="Dr. Mehta",
-        email="mehta@example.com",
+        name="Dr. sanya",
+        email="sanya@gmail.com",
         password="password123",
-        contact="9876543210",
-        role="Doctor"
+        contact="1234567890",
+        role="doctor"
     )
     #then the patient
 
     pat1 = User(
-        name="Riya Sharma",
-        email="riya@example.com",
-        password="password123",
+        name="sanya sinha",
+        email="sanya123@gmail.com",
+        password="sanya123",
         contact="9123456789",
-        role="Patient"
+        role="patient"
     )
 
     db.session.add_all([doc1, pat1])
     db.session.commit()
-    #connecting doctor and depart
 
     doctor = Doctor(
         id=doc1.id,
@@ -39,7 +39,6 @@ with app.app_context():
     db.session.add(doctor)
     db.session.commit()
 
-    #adding patient info
     patient = Patient(
         id=pat1.id,
         dob=date(2000, 5, 17),
@@ -48,7 +47,6 @@ with app.app_context():
     db.session.add(patient)
     db.session.commit()
 
-    #now the appointment
     appointment = Appointment(
         patientid=patient.id,
         doctorid=doctor.id,
@@ -70,12 +68,13 @@ with app.app_context():
     db.session.add(treatment)
     db.session.commit()
 
-    #prescritpion
     prescription = Prescription(
         treatmentid=treatment.id,
         medication="Atenolol 50mg - once daily"
     )
     db.session.add(prescription)
     db.session.commit()
+     
 
     print("Sample data inserted successfully!")
+    
