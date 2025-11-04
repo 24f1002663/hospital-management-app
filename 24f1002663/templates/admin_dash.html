@@ -3,9 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>admin DASHBOARD</title>
+    <title>Admin Dashboard</title>
 </head>
 <body>
-    Hello ! welcome to admin DASHBOARD
+    <h1>Hello! Welcome to Admin Dashboard</h1>
+
+    <h2>Overview</h2>
+    <p>Total Doctors: {{ total_doctors }}</p>
+    <p>Total Patients: {{ total_patients }}</p>
+    <p>Total Appointments: {{ total_appointments }}</p>
+
+    <hr>
+
+    <h2>Doctors</h2>
+    <ul>
+        <li><a href="{{ url_for('admin.register_doctor') }}"> Register New Doctor</a></li>
+        <li><a href="{{ url_for('admin.view_doctors') }}"> View Doctors</a></li>
+    </ul>
+
+    <hr>
+
+    <h2>Patient</h2>
+    <ul>
+        <li><a href="{{ url_for('admin.search_patient') }}">view Patients</a></li>
+    </ul>
+
+    <hr>
+
+    <h2>User</h2>
+    <ul>
+        <li><a href="{{ url_for('admin.view_users') }}"> Update Users</a></li>
+    </ul>
+
+    <h2> Appointments</h2>
+    <ul>
+        <li><a href="{{ url_for('admin.manage_appointments') }}"> View Appointments</a></li>
+    </ul>
+
+    <hr>
+
+    <p><a href="{{ url_for('auth.logout') }}"> Logout</a></p>
+
+
 </body>
 </html>

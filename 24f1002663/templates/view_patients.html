@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Patients</title>
+</head>
+<body>
+    <h2>Search Patients</h2>
+
+    <form method="GET" action="{{ url_for('admin.search_patient') }}">
+        <input type="text" name="query" placeholder="Search by name, ID, or contact" value="{{ query or '' }}" required>
+        <button type="submit">Search</button>
+    </form>
+
+    <br>
+
+    {% if patients %}
+        <table border="1">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Contact</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            {% for patient in patients %}
+            <tr>
+                <td>{{ patient.id }}</td>
+                <td>{{ patient.name }}</td>
+                <td>{{ patient.email }}</td>
+                <td>{{ patient.contact }}</td>
+                <td>{{ patient.status }}</td>
+                <td>
+                    <a href="{{ url_for('admin.update_user', user_id=patient.id) }}">Update</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>No patients found.</p>
+    {% endif %}
+
+    <br>
+    <a href="{{ url_for('admin.dashboard') }}">⬅ Back to Dashboard</a>
+</body>
+</html>

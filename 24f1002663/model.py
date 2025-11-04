@@ -1,7 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 from datetime import date, time
-# User Table
+# User table  
 class User(db.Model):
     __tablename__ = "user"
     id = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -10,6 +10,8 @@ class User(db.Model):
     password = db.Column(db.String(100), nullable=False)
     contact = db.Column(db.String(10), nullable=False)
     role = db.Column(db.String(50), nullable=False)  
+    status = db.Column(db.String(20), nullable=False, default='active')
+    # Connecting the key id to different tables
     doctor=db.relationship("Doctor", backref= "user",uselist= False)
     patient=db.relationship("Patient", backref= "user",uselist=False)
 # Doctor Table
@@ -28,7 +30,7 @@ class Patient(db.Model):
     gender = db.Column(db.Enum('M', 'F', name='gender_enum'), nullable=False)
     appointments = db.relationship('Appointment', backref='patient', lazy=True)
     treatments = db.relationship('Treatment', backref='patient', lazy=True)
-# Department
+# Department Table
 class Department(db.Model):
     __tablename__ = "department"
     id = db.Column(db.Integer, primary_key=True, nullable=False)
