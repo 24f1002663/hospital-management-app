@@ -1,8 +1,8 @@
+from werkzeug.security import generate_password_hash
 from flask import Blueprint, render_template, session, flash, redirect, url_for
 from model import db, Doctor, Patient, Appointment, User, Department
-from flask import request
+from flask import request,current_app
 from sqlalchemy import cast, String  # added for id search fix
-
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 #for admin dashboard 
 @admin_bp.route('/dashboard')
@@ -26,37 +26,42 @@ def dashboard():
 
 
 # registering new doctor by admin
+# registering new doctor by admin
 @admin_bp.route('/doctor/register', methods=['GET', 'POST'])
 def register_doctor():
     if session.get('user_role') != 'admin':
         flash('Access denied!', 'danger')
         return redirect(url_for('auth.login'))
     
-    departments= Department.query.all()
+    departments = Department.query.all()
 
     if request.method == 'POST':
         # asking data from admin using post to register for new doctor
         name = request.form.get('name')
         email = request.form.get('email')
         contact = request.form.get('contact')
-        department_id=request.form.get('departmentid')
+        department_id = request.form.get('departmentid')
         password = request.form.get('password')
-        #gettinf the department from the id and pushing the same result in specialization.
+
+        # ✅ hash the password before saving
+        hash_password = generate_password_hash(password)
+
+        # getting the department from the id and pushing the same result in specialization.
         department = Department.query.get(department_id)
         specialization = department.name if department else "Physician"
 
-        # creating a user entry, and then adding the details and commiting
+        # creating a user entry, and then adding the details and committing
         new_user = User(
             name=name,
             email=email,
             contact=contact,
-            password=password,
+            password=hash_password,   # ✅ store hashed password instead of plain
             role='doctor'
         )
         db.session.add(new_user)
         db.session.commit()
 
-        # with same adding a doctor entry as it is the query of register docotr
+        # with same adding a doctor entry as it is the query of register doctor
         new_doctor = Doctor(
             id=new_user.id,
             specialization=specialization,
@@ -65,11 +70,38 @@ def register_doctor():
         db.session.add(new_doctor)
         db.session.commit()
 
-        flash('Doctor added successfully!', 'success')
+        #for sending the email automatically to the newly registered docotor
+        try:
+            from app import mail,Message
+            message = Message(
+                subject="Doctor Login Credentials",
+                sender=current_app.config['MAIL_USERNAME'],
+                recipients=[email]
+            )
+            message.body = f"""
+Greetings Dr. {name},
+Welcome to the Hospital!
+
+Your login credentials are:
+Email: {email}
+Password: {password}
+
+Link to login: http://localhost:5000/auth/login
+
+Regards,
+Admin
+"""
+            mail.send(message)
+            flash(f"Doctor '{name}' added! Credentials sent.", "success")
+
+        except Exception as e:
+            current_app.logger.exception("Email failed")
+            flash(f"Doctor '{name}' added successfully, but email not sent.", "warning")
+
         return redirect(url_for('admin.view_doctors'))
 
     # moved here from bottom (was unreachable)
-    return render_template('register_doctor.html',departments=departments)
+    return render_template('register_doctor.html', departments=departments)
 
 
 # view doctors is for the list of all doctors to view then and then update them further
@@ -177,49 +209,6 @@ def view_users():
     users = User.query.all()
     return render_template('view_users.html', users=users)
 
-
-#now updating user details, including patients, doctors and admins
-@admin_bp.route('/user/update/<int:user_id>', methods=['GET', 'POST'])
-def update_user(user_id):
-    if session.get('user_role') != 'admin':
-        flash('Access denied!', 'danger')
-        return redirect(url_for('auth.login'))
-
-    user = User.query.get_or_404(user_id)
-
-    if request.method == 'POST':
-        user.name = request.form.get('name')
-        user.email = request.form.get('email')
-        user.contact = request.form.get('contact')
-        user.status = request.form.get('status')
-
-        db.session.commit()
-        flash('User details updated successfully!', 'success')
-        return redirect(url_for('admin.view_users'))
-
-    return render_template('update_user.html', user=user)
-
-#to delete user
-@admin_bp.route('/user/delete/<int:user_id>', methods=['POST'])
-def delete_user(user_id):
-    if session.get('user_role') != 'admin':
-        flash('Access denied!', 'danger')
-        return redirect(url_for('auth.login'))
-    
-    user = User.query.get_or_404(user_id)
-
-    # because user gets deleted then linekd doctor and patient should also
-    if user.doctor:
-        db.session.delete(user.doctor)
-    if user.patient:
-        db.session.delete(user.patient)
-
-    db.session.delete(user)
-    db.session.commit()
-
-    flash('User deleted successfully!', 'success')
-    return redirect(url_for('admin.dashboard'))
-
 # to show all the appointments
 @admin_bp.route('/appointments', methods=['GET', 'POST'])
 def manage_appointments():
@@ -280,8 +269,8 @@ def manage_appointments():
 
     # lastly display all the appointments
     appointments = Appointment.query.all()
-    doctors = User.query.filter_by(role='doctor').all()
-    patients = User.query.filter_by(role='patient').all()
+    doctors = (User.query.join(Doctor).filter(User.role == 'doctor',User.is_blacklisted == False,Doctor.is_available == True).all())
+    patients = User.query.filter_by(role='patient',is_blacklisted=False).all()
 
     return render_template(
         'manage_appointments.html',
@@ -302,3 +291,39 @@ def delete_appointment(appointment_id):
     db.session.commit()
     flash('Appointment deleted successfully!', 'success')
     return redirect(url_for('admin.manage_appointments'))
+
+# now we write a code to blacklist the user
+@admin_bp.route('/user/blacklist/<int:user_id>', methods=['POST'])
+def blacklist_user(user_id):
+    if session.get('user_role') != 'admin':
+        flash('Access denied!', 'danger'); return redirect(url_for('auth.login'))
+    user = User.query.get_or_404(user_id)
+    user.is_blacklisted = True
+    db.session.commit()
+    flash(f"User '{user.name}' has been blacklisted.", 'warning')
+    return redirect(request.referrer or url_for('admin.dashboard'))
+
+@admin_bp.route('/user/unblacklist/<int:user_id>', methods=['POST'])
+def unblacklist_user(user_id):
+    if session.get('user_role') != 'admin':
+        flash('Access denied!', 'danger'); return redirect(url_for('auth.login'))
+    user = User.query.get_or_404(user_id)
+    user.is_blacklisted = False
+    db.session.commit()
+    flash(f"User '{user.name}' has been unblacklisted.", 'success')
+    return redirect(request.referrer or url_for('admin.dashboard'))
+
+# to view individual doctor profile
+@admin_bp.route('/doctor/profile/<int:doctor_id>')
+def view_doctor_profile(doctor_id):
+    if session.get('user_role') != 'admin':
+        flash('Access denied!', 'danger')
+        return redirect(url_for('auth.login'))
+
+    doctor = Doctor.query.get_or_404(doctor_id)
+    user = doctor.user  # get related user info
+    department = doctor.department  # department info
+
+    return render_template('doctor_profile.html', doctor=doctor, user=user, department=department)
+
+

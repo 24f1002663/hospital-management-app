@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Treatment Entry</title>
+</head>
+<body>
+    <h2>Treatment Entry</h2>
+
+    <p><strong>Doctor:</strong> {{ doctor.user.name if doctor else 'Unknown' }}</p>
+    <p><strong>Specialization:</strong> {{ doctor.specialization if doctor else 'N/A' }}</p>
+    <p><strong>Patient:</strong> {{ patient.user.name if patient else 'Unknown' }}</p>
+    <hr>
+
+    <form method="POST">
+        <p>
+            <label>Diagnosis:</label><br>
+            <input type="text" name="diagnosis" required>
+        </p>
+        <p>
+            <label>Procedure:</label><br>
+            <textarea name="procedure" rows="3" required></textarea>
+        </p>
+        <p>
+            <label>Prescription:</label><br>
+            <textarea name="medication" rows="3" required></textarea>
+        </p>
+        <p>
+            <button type="submit">💾 Save</button>
+        </p>
+    </form>
+
+    <p><a href="{{ url_for('doctor.dashboard') }}">⬅ Back to Dashboard</a></p>
+</body>
+</html>

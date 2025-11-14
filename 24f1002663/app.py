@@ -6,6 +6,10 @@ from routes.authentication import auth_bp
 from routes.admin_routes import admin_bp
 from routes.doctor_routes import doctor_bp
 from routes.patient_routes import patient_bp
+from flask_mail import Mail,Message
+from werkzeug.security import generate_password_hash
+
+mail=Mail()
 
 def create_app():
     app = Flask(__name__)
@@ -15,9 +19,15 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     #to protect attacks
     app.secret_key = "my-secret-key"
+    app.config['MAIL_SERVER']='smtp.gmail.com'
+    app.config['MAIL_PORT']=587
+    app.config['MAIL_USE_TLS']=True
+    app.config['MAIL_USERNAME']="24f1002663@ds.study.iitm.ac.in"
+    app.config['MAIL_PASSWORD']="jmsd zdxx mphx ogyk"
     #this binds my db to the app
     # and now we fix the routes so they dont overlap
     db.init_app(app)
+    mail.init_app(app)
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(doctor_bp)
@@ -37,7 +47,7 @@ def create_admin():
         admin=  User(
             name='admin',
             email='admin@hospital.com',
-            password='admin123',
+            password=generate_password_hash('admin123'),
             contact='1233445566',
             role='admin'
 

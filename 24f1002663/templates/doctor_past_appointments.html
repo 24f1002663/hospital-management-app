@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Past Appointments</title>
+</head>
+<body>
+    <h2>Past Appointments (Completed / Cancelled)</h2>
+
+    {% if past_appointments %}
+    <table border="1" cellpadding="5">
+        <tr>
+            <th>ID</th>
+            <th>Patient</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        {% for appt in past_appointments %}
+        <tr>
+            <td>{{ appt.id }}</td>
+            <td>{{ appt.patient.user.name if appt.patient else 'Unknown' }}</td>
+            <td>{{ appt.date }}</td>
+            <td>{{ appt.time.strftime('%H:%M') }}</td>
+            <td>{{ appt.status }}</td>
+            <td>
+                <a href="{{ url_for('doctor.view_patient_history', patient_id=appt.patientid) }}">View History</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p>No past appointments found.</p>
+    {% endif %}
+
+    <p><a href="{{ url_for('doctor.dashboard') }}">⬅ Back to Dashboard</a></p>
+</body>
+</html>

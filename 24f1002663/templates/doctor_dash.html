@@ -3,9 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> DOCTOR DASHBOARD</title>
+    <title>Doctor Dashboard</title>
 </head>
 <body>
-    Hello ! welcome to doctos DASHBOARD
+    <h2>Hello! Welcome to Doctor Dashboard</h2>
+
+    <h3>Upcoming Appointments (Next 7 Days)</h3>
+
+    {% if appointments %}
+    <table border="1" cellpadding="5">
+        <tr>
+            <th>ID</th>
+            <th>Patient</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        {% for appt in appointments %}
+        <tr>
+            <td>{{ appt.id }}</td>
+            <td>{{ appt.patient.user.name if appt.patient else 'Unknown' }}</td>
+            <td>{{ appt.date }}</td>
+            <td>{{ appt.time.strftime('%H:%M') }}</td>
+            <td>{{ appt.status }}</td>
+            <td>
+                {% if appt.status not in ['Completed', 'Cancelled'] %}
+                <form method="POST" action="{{ url_for('doctor.update_appointment_status', appointment_id=appt.id) }}">
+                    <select name="status" required>
+                        <option value="">Select</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                    <button type="submit">Update</button>
+                </form>
+                {% endif %}
+                <a href="{{ url_for('doctor.treatment', appointment_id=appt.id) }}">Enter Treatment</a> |
+                <a href="{{ url_for('doctor.view_patient_history', patient_id=appt.patientid) }}">View History</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p>No appointments scheduled for the upcoming week.</p>
+    {% endif %}
+
+    <br>
+    <p><a href="{{ url_for('doctor.past_appointments') }}">View Past Appointments</a></p>
+    <hr>
+
+    <h3>My Weekly Availability Schedule</h3>
+
+{% if next_7_days %}
+<form method="POST" action="{{ url_for('doctor.update_availability') }}">
+<table border="1" cellpadding="5">
+    <tr>
+        <th>Date</th>
+        <th>Day</th>
+        <th>Availability</th>
+    </tr>
+    {% for a in next_7_days %}
+    <tr>
+        <td>{{ a.date }}</td>
+        <td>{{ a.date.strftime('%A') }}</td>
+        <td>
+            <input type="checkbox" name="available_days" value="{{ a.id }}" {% if a.is_available %}checked{% endif %}>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+<br>
+<button type="submit">Save Changes</button>
+</form>
+{% else %}
+<p>No availability data found.</p>
+{% endif %}
+
+    <br><br>
+    <a href="{{ url_for('auth.logout') }}">🚪 Logout</a>
 </body>
 </html>

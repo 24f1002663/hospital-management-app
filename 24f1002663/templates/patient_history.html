@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Patient Medical History</title>
+</head>
+<body>
+    <h2>Patient Medical History</h2>
+
+    {% if treatments %}
+    <table border="1" cellpadding="5">
+        <tr>
+            <th>Date</th>
+            <th>Doctor</th>
+            <th>Diagnosis</th>
+            <th>Procedure</th>
+            <th>Prescription</th>
+            <th>Viewed On</th>
+        </tr>
+        {% for t in treatments %}
+        <tr>
+            <td>{{ t.date }}</td>
+            <td>{{ t.doctor.user.name if t.doctor and t.doctor.user else 'Unknown' }}</td>
+            <td>{{ t.diagnosis }}</td>
+            <td>{{ t.procedure }}</td>
+            <td>
+                {% for p in t.prescriptions %}
+                    {{ p.medication }}<br>
+                {% endfor %}
+            </td>
+            <td>{{ viewed_on }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p>No treatments found for this patient.</p>
+    {% endif %}
+
+    <p><a href="{{ url_for('doctor.dashboard') }}">⬅ Back to Dashboard</a></p>
+</body>
+</html>

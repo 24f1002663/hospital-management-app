@@ -1,12 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Doctors</title>
 </head>
 <body>
 
 <h2>Doctor Management</h2>
 
+<!-- Search form -->
 <form method="GET" action="{{ url_for('admin.search_doctor') }}">
     <p>
         Search Doctor:
@@ -22,7 +25,10 @@
         <th>Name</th>
         <th>Specialization</th>
         <th>Department</th>
-        <th>Update</th>
+        <th>Update Department</th>
+        <th>Blacklisted?</th>
+        <th>Action</th>
+        <th>View Profile</th>
     </tr>
 
     {% for doctor in doctors %}
@@ -43,8 +49,7 @@
                 <select name="departmentid" id="departmentid_{{ doctor.id }}">
                     <option value="">Select Department</option>
                     {% for dept in departments %}
-                        <option value="{{ dept.id }}"
-                            {% if doctor.departmentid == dept.id %}selected{% endif %}>
+                        <option value="{{ dept.id }}" {% if doctor.departmentid == dept.id %}selected{% endif %}>
                             {{ dept.name }}
                         </option>
                     {% endfor %}
@@ -52,9 +57,30 @@
                 <input type="submit" value="Update">
             </form>
         </td>
+
+        <td>{{ 'Yes' if doctor.user.is_blacklisted else 'No' }}</td>
+
+        <td>
+            {% if doctor.user.is_blacklisted %}
+            <form method="POST" action="{{ url_for('admin.unblacklist_user', user_id=doctor.user.id) }}">
+                <button type="submit">Unblacklist</button>
+            </form>
+            {% else %}
+            <form method="POST" action="{{ url_for('admin.blacklist_user', user_id=doctor.user.id) }}">
+                <button type="submit">Blacklist</button>
+            </form>
+            {% endif %}
+        </td>
+
+        <td>
+            <a href="{{ url_for('admin.view_doctor_profile', doctor_id=doctor.id) }}">View Profile</a>
+        </td>
     </tr>
     {% endfor %}
 </table>
+
+<br>
+<a href="{{ url_for('admin.dashboard') }}">⬅ Back to Dashboard</a>
 
 </body>
 </html>

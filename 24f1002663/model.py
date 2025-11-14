@@ -11,6 +11,8 @@ class User(db.Model):
     contact = db.Column(db.String(10), nullable=False)
     role = db.Column(db.String(50), nullable=False)  
     status = db.Column(db.String(20), nullable=False, default='active')
+    is_blacklisted = db.Column(db.Boolean, nullable=False, default=False)
+
     # Connecting the key id to different tables
     doctor=db.relationship("Doctor", backref= "user",uselist= False)
     patient=db.relationship("Patient", backref= "user",uselist=False)
@@ -22,6 +24,7 @@ class Doctor(db.Model):
     departmentid = db.Column(db.Integer, db.ForeignKey('department.id'), nullable=True)
     appointments = db.relationship('Appointment', backref='doctor', lazy=True)
     treatments = db.relationship('Treatment', backref='doctor', lazy=True)
+    is_available=db.Column(db.Boolean,nullable=False,default=True)
 # Patient Table
 class Patient(db.Model):
     __tablename__ = "patient"
@@ -62,3 +65,12 @@ class Prescription(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     treatmentid = db.Column(db.Integer, db.ForeignKey('treatment.id'), nullable=True)
     medication = db.Column(db.String(255), nullable=False)
+
+class DoctorAvailability(db.Model):
+    __tablename__="doc_available"
+    id=db.Column(db.Integer,primary_key=True,nullable=False)
+    doctor_id=db.Column(db.Integer,db.ForeignKey('doctor.id'),nullable=False)
+    date=db.Column(db.Date,nullable=False)
+    is_available=db.Column(db.Boolean,nullable=False,default=True)
+    doctor=db.relationship("Doctor",backref=db.backref("availability",lazy=True))
+    

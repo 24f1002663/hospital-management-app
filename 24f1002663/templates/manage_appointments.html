@@ -46,7 +46,7 @@
     <hr>
 
     <h3>Scheduled Appointments</h3>
-    <table border="1" >
+    <table border="1">
         <tr>
             <th>ID</th>
             <th>Patient</th>
@@ -62,12 +62,13 @@
             <td>{{ appt.id }}</td>
             <td>{{ appt.patient.user.name if appt.patient else 'Unknown' }}</td>
             <td>{{ appt.doctor.user.name if appt.doctor else 'Unknown' }}</td>
-            <td>{{ appt.date }}</td>
-            <td>{{ appt.time }}</td>
+            <td>{{ appt.date.strftime('%Y-%m-%d') if appt.date else '' }}</td>
+            <td>{{ appt.time.strftime('%H:%M') if appt.time else '' }}</td>
+
             <td>{{ appt.status }}</td>
             <td>
                 <button type="button"
-                        onclick="fillForm('{{ appt.id }}', '{{ appt.patientid }}', '{{ appt.doctorid }}', '{{ appt.date }}', '{{ appt.time }}', '{{ appt.status }}')">
+                        onclick="fillForm('{{ appt.id }}', '{{ appt.patientid }}', '{{ appt.doctorid }}', '{{ appt.date.strftime('%Y-%m-%d') if appt.date else '' }}', '{{ appt.time.strftime('%H:%M') if appt.time else '' }}', '{{ appt.status }}')">
                     Edit
                 </button>
                 <form action="{{ url_for('admin.delete_appointment', appointment_id=appt.id) }}"
@@ -83,7 +84,6 @@
     </table>
 
     <script>
-        
         function fillForm(id, patientid, doctorid, date, time, status) {
             document.getElementById('appointment_id').value = id;
             document.querySelector('select[name="patientid"]').value = patientid;
@@ -94,5 +94,6 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     </script>
+    <a href="{{ url_for('admin.dashboard') }}">⬅ Back to Dashboard</a>
 </body>
 </html>
