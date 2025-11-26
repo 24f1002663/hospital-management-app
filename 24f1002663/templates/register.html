@@ -3,57 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> register</title>
-<body bgcolor="lightblue">
+    <title>register</title>
 
-<center>
-<h1>Create an Account</h1>
-<hr>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: arial, sans-serif;
+            background: #e6f4ea; 
+        }
 
-<!-- Flash messages -->
+        .box {
+            width: 420px;
+            margin: 40px auto;
+            padding: 25px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        /* title text */
+        h1 {
+            color: #2e7d32; 
+            margin-bottom: 10px;
+        }
+
+        input, select {
+            width: 80%;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 5px;
+            border: 1px solid #bbb;
+        }
+
+        .btn {
+            width: 80%;
+            padding: 12px;
+            background: #2e7d32;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #1b5e20;
+        }
+
+        .msg {
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .marq {
+            margin-top: 20px;
+            background: #2e7d32;
+            color: white;
+            padding: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- showing flash messages at top -->
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
         {% for category, message in messages %}
-            <div style="color: {% if category=='danger' %}red{% elif category=='success' %}green{% else %}black{% endif %};">
+            <div class="msg" style="color: {% if category=='danger' %}red{% elif category=='success' %}green{% else %}black{% endif %};">
                 {{ message }}
             </div>
         {% endfor %}
     {% endif %}
 {% endwith %}
 
-<!-- Simple registration form -->
-<form method="POST" action="{{ url_for('auth.register') }}">
-    Full Name:<br>
-    <input type="text" name="name" placeholder="Enter your full name" required><br><br>
+<div class="box">
 
-    Email:<br>
-    <input type="email" name="email" placeholder="Enter your email" required><br><br>
+    <h1>Create an Account</h1>
+    <hr>
 
-    Password:<br>
-    <input type="password" name="password" placeholder="Create a password" required><br><br>
+    <!-- registration form -->
+    <form method="POST" action="{{ url_for('auth.register') }}">
 
-    Contact Number:<br>
-    <input type="text" name="contact" placeholder="Enter your contact number" required><br><br>
+        <input type="text" name="name" placeholder="full name" required>
 
-    Date of Birth:<br>
-    <input type="date" name="dob" required><br><br>
+        <input type="email" name="email" placeholder="email" required>
 
-    Gender:<br>
-    <select name="gender" required>
-        <option value="">Select Gender</option>
-        <option value="M">Male</option>
-        <option value="F">Female</option>
-    </select><br><br>
+        <input type="password" name="password" placeholder="password" required>
 
-    <input type="submit" value="Register">
-</form>
+        <input type="text" name="contact" placeholder="contact number" required>
 
-<br>
-<p>Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a></p>
-<p><a href="{{ url_for('index') }}">← Back to Home</a></p>
+        <label style="float:left; margin-left:35px; font-size:13px;">Date of Birth</label>
+        <input type="date" name="dob" required>
 
-<marquee bgcolor="blue" scrollamount="10">💊 Welcome to Hospital Management System! 💊</marquee>
+        <select name="gender" required>
+            <option value="">Select Gender</option>
+            <option value="M">Male</option>
+            <option value="F">Female</option>
+        </select>
 
-</center>
+        <button class="btn" type="submit">Register</button>
+    </form>
+
+    <p>Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a></p>
+    <p><a href="{{ url_for('index') }}">Back to Home</a></p>
+
+    <div class="marq">
+        <marquee scrollamount="8">Welcome to the Hospital Management System</marquee>
+    </div>
+
+</div>
+
 </body>
 </html>

@@ -1,7 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 from datetime import date, time
-# User table  
+#Creating User table  
 class User(db.Model):
     __tablename__ = "user"
     id = db.Column(db.Integer, primary_key=True, nullable=False)

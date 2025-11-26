@@ -1,8 +1,10 @@
 from flask import Blueprint, render_template, session, flash, redirect, url_for, request
-from model import db, Appointment, Treatment, Prescription, Patient, User, Doctor,DoctorAvailability
+from model import db, Appointment, Treatment, Prescription, Patient, User, Doctor, DoctorAvailability
 from datetime import date, timedelta
 
 doctor_bp = Blueprint('doctor', __name__, url_prefix='/doctor')
+
+
 # Doctor Dashboard 
 @doctor_bp.route('/dashboard')
 def dashboard():
@@ -13,7 +15,8 @@ def dashboard():
     doctor_id = session.get('user_id')
     doctor = Doctor.query.get(doctor_id)
     today = date.today()
-##we did this to automatically update availability
+
+    # auto-generate availability for next 7 days
     for i in range(7):
         day = today + timedelta(days=i)
         existing = DoctorAvailability.query.filter_by(doctor_id=doctor_id, date=day).first()
@@ -22,27 +25,37 @@ def dashboard():
             db.session.add(new)
     db.session.commit()
 
+    # UPCOMING appointments (excluding completed)
     appointments = Appointment.query.filter(
         Appointment.doctorid == doctor_id,
         Appointment.status.notin_(["Completed"]),
         Appointment.date >= today
     ).order_by(Appointment.date, Appointment.time).all()
 
+    # PAST appointments (Completed + Cancelled)
+    past = Appointment.query.filter(
+        Appointment.doctorid == doctor_id,
+        Appointment.status.in_(["Completed", "Cancelled"])
+    ).order_by(Appointment.date.desc(), Appointment.time.desc()).all()
+
+    # next 7 days availability
     next_7_days = DoctorAvailability.query.filter(
         DoctorAvailability.doctor_id == doctor_id,
         DoctorAvailability.date >= today
     ).order_by(DoctorAvailability.date.asc()).limit(7).all()
 
-    # adding next 7 days to the render the template call:
     return render_template(
         'doctor_dash.html',
         doctor=doctor,
         appointments=appointments,
-        next_7_days=next_7_days,  
+        past=past,
+        next_7_days=next_7_days,
         today=today,
         timedelta=timedelta
     )
-#for toggle the availability
+
+
+# Toggle doctor available/unavailable (overall)
 @doctor_bp.route('/toggle_availability', methods=['POST'])
 def toggle_availability():
     if session.get('user_role') != 'doctor':
@@ -57,7 +70,9 @@ def toggle_availability():
 
     flash(f"You are now {'Available' if doctor.is_available else 'Unavailable'}.", 'success')
     return redirect(url_for('doctor.dashboard'))
-#for enterining the presciption i.e treatment
+
+
+# Doctor adding treatment + prescription
 @doctor_bp.route('/treatment/<int:appointment_id>', methods=['GET', 'POST'])
 def treatment(appointment_id):
     if session.get('user_role') != 'doctor':
@@ -67,7 +82,7 @@ def treatment(appointment_id):
     appointment = Appointment.query.get_or_404(appointment_id)
     patient = appointment.patient
     doctor_id = session.get('user_id')
-    doctor = Doctor.query.get(doctor_id)  # ✅ get the doctor info
+    doctor = Doctor.query.get(doctor_id)
 
     if request.method == 'POST':
         diagnosis = request.form.get('diagnosis')
@@ -91,17 +106,16 @@ def treatment(appointment_id):
         db.session.add(prescription)
         db.session.commit()
 
-        #to automark if the prescription is written
         appointment.status = "Completed"
         db.session.commit()
 
         flash('Treatment and prescription saved successfully!', 'success')
         return redirect(url_for('doctor.dashboard'))
 
-    # pass doctor to the template
     return render_template('doctor_treatment.html', appointment=appointment, patient=patient, doctor=doctor)
 
-# FOR viewing the patient's medical history
+
+# View complete patient history
 @doctor_bp.route('/patient/history/<int:patient_id>')
 def view_patient_history(patient_id):
     if session.get('user_role') != 'doctor':
@@ -113,7 +127,7 @@ def view_patient_history(patient_id):
     doctor = Doctor.query.get(doctor_id)
 
     from datetime import datetime
-    viewed_on = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # current date/time
+    viewed_on = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     return render_template(
         'patient_history.html',
@@ -122,7 +136,8 @@ def view_patient_history(patient_id):
         viewed_on=viewed_on
     )
 
-# update the appoitment status
+
+# Update status only
 @doctor_bp.route('/appointment/update/<int:appointment_id>', methods=['POST'])
 def update_appointment_status(appointment_id):
     if session.get('user_role') != 'doctor':
@@ -138,6 +153,8 @@ def update_appointment_status(appointment_id):
     flash('Appointment status updated successfully!', 'success')
     return redirect(url_for('doctor.dashboard'))
 
+
+# Past appointments page (optional)
 @doctor_bp.route('/past_appointments')
 def past_appointments():
     if session.get('user_role') != 'doctor':
@@ -147,13 +164,15 @@ def past_appointments():
     doctor_id = session.get('user_id')
     doctor = Doctor.query.get(doctor_id)
 
-    # Get completed and cancelled appointments
     past_appointments = Appointment.query.filter(
         Appointment.doctorid == doctor_id,
         Appointment.status.in_(["Completed", "Cancelled"])
     ).order_by(Appointment.date.desc(), Appointment.time.desc()).all()
 
     return render_template('doctor_past_appointments.html', doctor=doctor, past_appointments=past_appointments)
+
+
+# Update availability for next 7 days
 @doctor_bp.route('/update_availability', methods=['POST'])
 def update_availability():
     if session.get('user_role') != 'doctor':
@@ -161,7 +180,7 @@ def update_availability():
         return redirect(url_for('auth.login'))
 
     doctor_id = session.get('user_id')
-    selected_ids = request.form.getlist('available_days')  
+    selected_ids = request.form.getlist('available_days')
 
     availabilities = DoctorAvailability.query.filter_by(doctor_id=doctor_id).all()
     for a in availabilities:
@@ -170,3 +189,43 @@ def update_availability():
     db.session.commit()
     flash(' Availability schedule updated successfully!', 'success')
     return redirect(url_for('doctor.dashboard'))
+# Doctor view + update profile
+# Doctor Profile (View & Update)
+@doctor_bp.route('/profile', methods=['GET', 'POST'])
+@doctor_bp.route('/profile', methods=['GET', 'POST'])
+def profile():
+    if session.get('user_role') != 'doctor':
+        flash("Access denied!", "danger")
+        return redirect(url_for('auth.login'))
+
+    user_id = session.get('user_id')
+
+    # Get User + Doctor linked using same ID
+    user = User.query.get_or_404(user_id)
+    doctor = Doctor.query.get_or_404(user_id)
+    department = doctor.department  # may be None
+
+    if request.method == 'POST':
+        # Update basic user fields
+        user.name = request.form.get('name')
+        user.contact = request.form.get('contact')
+
+        # Update doctor fields
+        doctor.specialization = request.form.get('specialization')
+
+        # Password change (optional)
+        new_pass = request.form.get('password')
+        if new_pass and new_pass.strip():
+            user.password = new_pass
+
+        db.session.commit()
+        flash("Profile updated successfully!", "success")
+        return redirect(url_for('doctor.profile'))
+
+    return render_template(
+        "doctor_self_profile.html",
+        user=user,
+        doctor=doctor,
+        department=department
+    )
+

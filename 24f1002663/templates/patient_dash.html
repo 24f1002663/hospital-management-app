@@ -3,9 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> PATIENT DASHBOARD</title>
+    <title>Patient Dashboard</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: arial, sans-serif;
+            background: #e6f4ea; 
+        }
+
+        .box {
+            width: 90%;
+            max-width: 900px;
+            margin: 30px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.1);
+        }
+
+        h2, h3 {
+            color: #2e7d32;
+        }
+
+        a {
+            color: #2e7d32;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            margin-top: 10px;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+        }
+
+        th {
+            background: #2e7d32;
+            color: white;
+        }
+
+        button {
+            background: #2e7d32;
+            border: none;
+            padding: 6px 12px;
+            color: white;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background: #1b5e20;
+        }
+
+        .msg {
+            margin-top: 10px;
+        }
+    </style>
 </head>
+
 <body>
-    Hello ! welcome to patient DASHBOARD
+
+<div class="box">
+
+    <h2>Patient Dashboard</h2>
+
+    <!-- basic navigation -->
+    <p><a href="{{ url_for('patient.view_doctors') }}">Search Doctors</a></p>
+    <p><a href="{{ url_for('patient.profile') }}">View Profile</a></p>
+
+    <hr>
+
+    <!-- upcoming appointments -->
+    <h3>Your Upcoming Appointments</h3>
+
+    {% if upcoming %}
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Doctor</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Status</th>
+            <th>Cancel</th>
+        </tr>
+        {% for appt in upcoming %}
+        <tr>
+            <td>{{ appt.id }}</td>
+            <td>{{ appt.doctor.user.name }}</td>
+            <td>{{ appt.date }}</td>
+            <td>{{ appt.time.strftime('%H:%M') }}</td>
+            <td>{{ appt.status }}</td>
+            <td>
+                <form method="POST"
+                      action="{{ url_for('patient.cancel_appointment', appt_id=appt.id) }}">
+                    <button type="submit">Cancel</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p>No upcoming appointments.</p>
+    {% endif %}
+
+    <hr>
+
+    <!-- past appointments -->
+    <h3>Your Past Appointments</h3>
+
+    {% if past %}
+    <table>
+        <tr>
+            <th>Doctor</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Details</th>
+        </tr>
+
+        {% for appt in past %}
+        <tr>
+            <td>{{ appt.doctor.user.name }}</td>
+            <td>{{ appt.date }}</td>
+            <td>{{ appt.status }}</td>
+            <td>
+                <a href="{{ url_for('patient.view_single_history', appointment_id=appt.id) }}">
+                    View Details
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p>No past appointments.</p>
+    {% endif %}
+
+    <hr>
+
+    <a href="{{ url_for('auth.logout') }}" style="color:#b71c1c; font-weight:bold;">Logout</a>
+
+    <!-- flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="msg" style="color: {% if category=='danger' %}red{% else %}green{% endif %};">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+</div>
+
 </body>
 </html>

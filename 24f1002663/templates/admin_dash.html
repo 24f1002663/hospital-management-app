@@ -4,9 +4,69 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: arial, sans-serif;
+            background: #e6f4ea; 
+        }
+
+        .box {
+            width: 500px;
+            margin: 40px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2e7d32;
+        }
+
+        h2 {
+            color: #1b5e20;
+            margin-bottom: 10px;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        ul li {
+            margin: 8px 0;
+        }
+
+        a {
+            text-decoration: none;
+            color: #2e7d32;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .logout {
+            display: block;
+            text-align: center;
+            margin-top: 25px;
+            font-weight: bold;
+            color: #b71c1c;
+        }
+    </style>
+
 </head>
 <body>
-    <h1>Hello! Welcome to Admin Dashboard</h1>
+
+<div class="box">
+
+    <!-- page title -->
+    <h1>Admin Dashboard</h1>
+    <hr>
 
     <h2>Overview</h2>
     <p>Total Doctors: {{ total_doctors }}</p>
@@ -17,28 +77,32 @@
 
     <h2>Doctors</h2>
     <ul>
-        <li><a href="{{ url_for('admin.register_doctor') }}"> Register New Doctor</a></li>
-        <li><a href="{{ url_for('admin.view_doctors') }}"> View Doctors</a></li>
+        <li><a href="{{ url_for('admin.register_doctor') }}">Register New Doctor</a></li>
+        <li><a href="{{ url_for('admin.view_doctors') }}">View Doctors</a></li>
     </ul>
 
     <hr>
 
-    <h2>Patient</h2>
+    <!-- patient section -->
+    <h2>Patients</h2>
     <ul>
-        <li><a href="{{ url_for('admin.search_patient') }}">view Patients</a></li>
+        <li><a href="{{ url_for('admin.search_patient') }}">View Patients</a></li>
     </ul>
 
     <hr>
 
-    <h2> Appointments</h2>
+    <!-- appointment section -->
+    <h2>Appointments</h2>
     <ul>
-        <li><a href="{{ url_for('admin.manage_appointments') }}"> View Appointments</a></li>
+        <li><a href="{{ url_for('admin.manage_appointments') }}">View Appointments</a></li>
     </ul>
 
     <hr>
 
-    <p><a href="{{ url_for('auth.logout') }}"> Logout</a></p>
+    <!-- logout -->
+    <a href="{{ url_for('auth.logout') }}" class="logout">Logout</a>
 
+</div>
 
 </body>
 </html>

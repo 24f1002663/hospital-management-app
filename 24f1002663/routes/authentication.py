@@ -6,6 +6,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 #we create blueprint names auth 
+
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -19,11 +20,14 @@ def login():
             flash("Your account has been blacklisted. Please contact the admin.", "danger")
             return redirect(url_for('auth.login'))
 
-        if user and check_password_hash(user.password, password):
+        # allow both hashed & old plain passwords
+        if user and (check_password_hash(user.password, password) or user.password == password):
+
             # normalize role to lowercase
             role = user.role.lower()
             session['user_role'] = role
-            session['user_id']=user.id
+            session['user_id'] = user.id
+
             flash(f'{role.capitalize()} logged in!', 'success')
 
             if role == 'admin':
@@ -54,6 +58,7 @@ def register():
             flash('Email already registered.Please head towards login','warning')
             return redirect(url_for('auth.login'))
         
+        # hash password for new users
         hashed_password = generate_password_hash(password)
 
         new_user = User(
@@ -66,7 +71,7 @@ def register():
         db.session.add(new_user)
         db.session.commit()
 
-        new_patient=Patient(
+        new_patient = Patient(
             id=new_user.id,
             dob=date.fromisoformat(dob),
             gender=gender
@@ -78,6 +83,7 @@ def register():
         return redirect(url_for('auth.login'))
     
     return render_template('register.html')
+
 
 @auth_bp.route('/logout')
 def logout():

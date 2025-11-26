@@ -4,83 +4,190 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Doctors</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #e6f4ea;
+            font-family: arial, sans-serif;
+        }
+
+        .Box {
+            width: 95%;
+            max-width: 1100px;
+            background: white;
+            margin: 40px auto;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #2e7d32;
+        }
+
+        .search-area {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            padding: 9px;
+            width: 55%;
+            border: 1px solid #7cb342;
+            border-radius: 5px;
+        }
+
+        input[type="submit"], button {
+            padding: 9px 15px;
+            background: #2e7d32;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover, button:hover {
+            background: #1b5e20;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #2e7d32;
+            color: white;
+            padding: 10px;
+            font-size: 15px;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            text-align: center;
+        }
+
+        select {
+            padding: 6px;
+            border: 1px solid #7cb342;
+            border-radius: 4px;
+        }
+
+        a.back {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            color: #2e7d32;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .flash {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+    </style>
 </head>
+
 <body>
 
-<h2>Doctor Management</h2>
+<!-- flash messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="flash" style="color:
+                {% if category=='danger' %}red
+                {% elif category=='success' %}green
+                {% else %}black
+                {% endif %}
+            ">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
 
-<!-- Search form -->
-<form method="GET" action="{{ url_for('admin.search_doctor') }}">
-    <p>
-        Search Doctor:
-        <input type="text" name="query" value="{{ query or '' }}" placeholder="Enter name or specialization">
-        <input type="submit" value="Search">
-    </p>
-</form>
+<div class="Box">
 
-<!-- Doctors Table -->
-<table border="1" >
-    <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Specialization</th>
-        <th>Department</th>
-        <th>Update Department</th>
-        <th>Blacklisted?</th>
-        <th>Action</th>
-        <th>View Profile</th>
-    </tr>
+    <h2>doctor management</h2>
 
-    {% for doctor in doctors %}
-    <tr>
-        <td>{{ doctor.id }}</td>
-        <td>{{ doctor.user.name if doctor.user else 'N/A' }}</td>
-        <td>{{ doctor.specialization }}</td>
-        <td>
-            {% if doctor.department %}
-                {{ doctor.department.name }}
-            {% else %}
-                N/A
-            {% endif %}
-        </td>
-        <td>
-            <form method="POST" action="{{ url_for('admin.update_doctor', doctor_id=doctor.id) }}">
-                <label for="departmentid_{{ doctor.id }}">Change Department:</label>
-                <select name="departmentid" id="departmentid_{{ doctor.id }}">
-                    <option value="">Select Department</option>
-                    {% for dept in departments %}
-                        <option value="{{ dept.id }}" {% if doctor.departmentid == dept.id %}selected{% endif %}>
-                            {{ dept.name }}
-                        </option>
-                    {% endfor %}
-                </select>
-                <input type="submit" value="Update">
-            </form>
-        </td>
+    <!-- search bar -->
+    <div class="search-area">
+        <form method="GET" action="{{ url_for('admin.search_doctor') }}">
+            <input type="text" name="query" value="{{ query or '' }}" placeholder="enter name or specialization">
+            <input type="submit" value="search">
+        </form>
+    </div>
 
-        <td>{{ 'Yes' if doctor.user.is_blacklisted else 'No' }}</td>
+    <!-- doctor table -->
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>NAME</th>
+            <th>SPECIALIZATION</th>
+            <th>DEPARTMENT</th>
+            <th>UPDATE DEPT</th>
+            <th>BLACKLISTED</th>
+            <th>ACTION</th>
+            <th>PROFILE</th>
+        </tr>
 
-        <td>
-            {% if doctor.user.is_blacklisted %}
-            <form method="POST" action="{{ url_for('admin.unblacklist_user', user_id=doctor.user.id) }}">
-                <button type="submit">Unblacklist</button>
-            </form>
-            {% else %}
-            <form method="POST" action="{{ url_for('admin.blacklist_user', user_id=doctor.user.id) }}">
-                <button type="submit">Blacklist</button>
-            </form>
-            {% endif %}
-        </td>
+        {% for doctor in doctors %}
+        <tr>
+            <td>{{ doctor.id }}</td>
+            <td>{{ doctor.user.name if doctor.user else 'N/A' }}</td>
+            <td>{{ doctor.specialization }}</td>
 
-        <td>
-            <a href="{{ url_for('admin.view_doctor_profile', doctor_id=doctor.id) }}">View Profile</a>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+            <td>
+                {% if doctor.department %}
+                    {{ doctor.department.name }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </td>
 
-<br>
-<a href="{{ url_for('admin.dashboard') }}">⬅ Back to Dashboard</a>
+            <td>
+                <form method="POST" action="{{ url_for('admin.update_doctor', doctor_id=doctor.id) }}">
+                    <select name="departmentid">
+                        <option value="">select department</option>
+                        {% for dept in departments %}
+                            <option value="{{ dept.id }}" {% if doctor.departmentid == dept.id %}selected{% endif %}>
+                                {{ dept.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <input type="submit" value="update">
+                </form>
+            </td>
+
+            <td>{{ 'yes' if doctor.user.is_blacklisted else 'no' }}</td>
+
+            <td>
+                {% if doctor.user.is_blacklisted %}
+                <form method="POST" action="{{ url_for('admin.unblacklist_user', user_id=doctor.user.id) }}">
+                    <button type="submit">unblacklist</button>
+                </form>
+                {% else %}
+                <form method="POST" action="{{ url_for('admin.blacklist_user', user_id=doctor.user.id) }}">
+                    <button type="submit">blacklist</button>
+                </form>
+                {% endif %}
+            </td>
+
+            <td>
+                <a href="{{ url_for('admin.view_doctor_profile', doctor_id=doctor.id) }}">view</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <a class="back" href="{{ url_for('admin.dashboard') }}">back to dashboard</a>
+
+</div>
 
 </body>
 </html>

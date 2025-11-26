@@ -3,57 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Patients</title>
+    <title>search patients</title>
+
+    <style>
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background: #e6f4ea;
+            font-family: arial, sans-serif;
+        }
+
+        .box {
+            width: 90%;
+            max-width: 900px;
+            background: white;
+            margin: 40px auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #2e7d32;
+        }
+
+        .search-area {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            width: 70%;
+            border: 1px solid #7cb342;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 18px;
+            background: #2e7d32;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1b5e20;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th {
+            background: #2e7d32;
+            color: white;
+            padding: 10px;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            text-align: center;
+        }
+
+        .back {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: bold;
+            color: #2e7d32;
+            text-decoration: none;
+        }
+
+        .flash {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+    </style>
 </head>
+
 <body>
+
+<!-- flash message at top -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="flash" style="color:
+                {% if category=='danger' %}red
+                {% elif category=='success' %}green
+                {% else %}black
+                {% endif %}
+            ">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="box">
+
+    <!-- page title -->
     <h2>Search Patients</h2>
 
-    <!-- Search form -->
-    <form method="GET" action="{{ url_for('admin.search_patient') }}">
-        <input type="text" name="query" placeholder="Search by name, ID, or contact" value="{{ query or '' }}" required>
-        <button type="submit">Search</button>
-    </form>
+    <!-- search form -->
+    <div class="search-area">
+        <form method="GET" action="{{ url_for('admin.search_patient') }}">
+            <input type="text" name="query" placeholder="search by name id or contact" value="{{ query or '' }}" required>
+            <button type="submit">search</button>
+        </form>
+    </div>
 
-    <br>
-
+    <!-- patient result table -->
     {% if patients %}
-        <table border="1" cellpadding="5" cellspacing="0">
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Contact</th>
-                <th>Status</th>
-                <th>Blacklisted?</th>
-                <th>Actions</th>
-            </tr>
-            {% for patient in patients %}
-            <tr>
-                <td>{{ patient.id }}</td>
-                <td>{{ patient.name }}</td>
-                <td>{{ patient.email }}</td>
-                <td>{{ patient.contact }}</td>
-                <td>{{ patient.status }}</td>
-                <td>{{ 'Yes' if patient.is_blacklisted else 'No' }}</td>
-                <td>
-                    {% if patient.is_blacklisted %}
-                    <form method="POST" action="{{ url_for('admin.unblacklist_user', user_id=patient.id) }}">
-                        <button type="submit">Unblacklist</button>
-                    </form>
-                    {% else %}
-                    <form method="POST" action="{{ url_for('admin.blacklist_user', user_id=patient.id) }}">
-                        <button type="submit">Blacklist</button>
-                    </form>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </table>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>NAME</th>
+            <th>EMAIL</th>
+            <th>CONTACT</th>
+            <th>STATUS</th>
+            <th>BLACKLISTED</th>
+            <th>ACTION</th>
+        </tr>
+
+        {% for patient in patients %}
+        <tr>
+            <td>{{ patient.id }}</td>
+            <td>{{ patient.name }}</td>
+            <td>{{ patient.email }}</td>
+            <td>{{ patient.contact }}</td>
+            <td>{{ patient.status }}</td>
+            <td>{{ 'yes' if patient.is_blacklisted else 'no' }}</td>
+            <td>
+                {% if patient.is_blacklisted %}
+                <form method="POST" action="{{ url_for('admin.unblacklist_user', user_id=patient.id) }}">
+                    <button type="submit">unblacklist</button>
+                </form>
+                {% else %}
+                <form method="POST" action="{{ url_for('admin.blacklist_user', user_id=patient.id) }}">
+                    <button type="submit">blacklist</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
     {% else %}
-        <p>No patients found.</p>
+    <p style="text-align:center; color:#555;">No Patients Found</p>
     {% endif %}
 
-    <br>
-    <a href="{{ url_for('admin.dashboard') }}">⬅ Back to Dashboard</a>
+    <a class="back" href="{{ url_for('admin.dashboard') }}">Back to Dashboard</a>
+
+</div>
+
 </body>
 </html>

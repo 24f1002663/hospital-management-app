@@ -3,23 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hospital Management </title>
+    <title>hospital management</title>
+
+    <style>
+        /* basic reset for clean layout */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #e6f4ea; /* background to light green */
+        }
+
+        /* main container in the middle */
+        .box {
+            width: 400px;
+            margin: 80px auto;
+            text-align: center;
+            padding: 25px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.1);
+        }
+
+        /* heading text */
+        h1 {
+            color: #2e7d32;
+            margin-bottom: 5px;
+        }
+
+        .btn {
+            width: 80%;
+            padding: 12px;
+            margin: 12px 0;
+            background: #2e7d32;
+            border: none;
+            color: white;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #1b5e20; 
+        }
+        .marq {
+            background: #2e7d32;
+            color: white;
+            padding: 5px;
+            margin-top: 20px;
+        }
+    </style>
 </head>
-<body bgcolor="lightblue">
 
-<center>
-<h1>Hospital Management</h1>
-<hr>
-<p>Choose an option below:</p>
+<body>
 
-<button onclick="window.location.href='/auth/login'">Login</button>
-<br><br>
-<button onclick="window.location.href='/auth/register'">Register</button>
+<!--main text box-->
+<div class="box">
+    <h1>Hospital Management System</h1>
+    <hr>
+    <p>Please select an option below</p>
+    <button class="btn" onclick="window.location.href='/auth/login'">
+        Login
+    </button>
+    <button class="btn" onclick="window.location.href='/auth/register'">
+        Register
+    </button>
+    <div class="marq">
+        <marquee scrollamount="8">Welcome to the Hospital Management System</marquee>
+    </div>
 
-<hr>
-
-<marquee bgcolor="blue" scrollamount="10">💊 Welcome to Hospital Management System! 💊</marquee>
-</center>
+</div>
 
 </body>
 </html>

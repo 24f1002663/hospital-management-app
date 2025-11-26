@@ -3,36 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medical History</title>
+    <title>Search Doctors</title>
 
     <style>
         body {
+            margin: 0;
+            padding: 0;
             font-family: arial, sans-serif;
             background: #e6f4ea;
-            margin: 0;
-            padding: 20px;
         }
 
         .box {
             width: 90%;
-            max-width: 800px;
+            max-width: 900px;
             margin: 30px auto;
             background: white;
-            padding: 25px;
+            padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 12px rgba(0,0,0,0.1);
         }
 
         h2 {
             color: #2e7d32;
-            text-align: center;
+        }
+
+        input, button {
+            padding: 8px;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        button {
+            background: #2e7d32;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #1b5e20;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
             background: white;
+            margin-top: 10px;
         }
 
         th, td {
@@ -46,11 +61,10 @@
         }
 
         a {
-            text-decoration: none;
             color: #2e7d32;
             font-weight: bold;
+            text-decoration: none;
         }
-
         a:hover {
             text-decoration: underline;
         }
@@ -59,49 +73,58 @@
             margin-top: 10px;
         }
     </style>
+
 </head>
 
 <body>
 
 <div class="box">
 
-    <h2>Medical History</h2>
+    <h2>Find Doctors</h2>
 
-    {% if treatments %}
+    <!-- search bar -->
+    <form method="GET" action="{{ url_for('patient.view_doctors') }}">
+        <input type="text" name="query" placeholder="Search doctors" value="{{ query or '' }}">
+        <button type="submit">Search</button>
+    </form>
+
+    <br>
+
+    {% if doctors %}
     <table>
         <tr>
-            <th>Date</th>
-            <th>Doctor</th>
-            <th>Diagnosis</th>
-            <th>Procedure</th>
-            <th>Prescription</th>
+            <th>Name</th>
+            <th>Specialization</th>
+            <th>Book</th>
+            <th>Availability</th>
         </tr>
 
-        {% for t in treatments %}
+        {% for doc in doctors %}
         <tr>
-            <td>{{ t.date }}</td>
-            <td>{{ t.doctor.user.name if t.doctor and t.doctor.user else 'Unknown' }}</td>
-            <td>{{ t.diagnosis }}</td>
-            <td>{{ t.procedure }}</td>
+            <td>{{ doc.user.name }}</td>
+            <td>{{ doc.specialization }}</td>
+
             <td>
-                {% for p in t.prescriptions %}
-                    {{ p.medication }}<br>
-                {% endfor %}
+                <a href="{{ url_for('patient.book_appointment', doctorid=doc.id) }}">
+                    Book Appointment
+                </a>
+            </td>
+
+            <td>
+                <!-- link to availability page -->
+                <a href="{{ url_for('patient.view_doctor_availability', doctor_id=doc.id) }}">
+                    View Availability
+                </a>
             </td>
         </tr>
         {% endfor %}
     </table>
     {% else %}
-    <p>No history found.</p>
+    <p>No doctors found.</p>
     {% endif %}
 
     <br>
-
-    {% if session.get('user_role') == 'doctor' %}
-        <a href="{{ url_for('doctor.dashboard') }}">⬅ Back to Dashboard</a>
-    {% else %}
-        <a href="{{ url_for('patient.dashboard') }}">⬅ Back to Dashboard</a>
-    {% endif %}
+    <a href="{{ url_for('patient.dashboard') }}">Back</a>
 
     <!-- flash messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}

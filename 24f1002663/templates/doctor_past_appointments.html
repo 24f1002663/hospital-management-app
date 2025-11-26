@@ -3,37 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <title>Past Appointments</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #e6f4ea;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h2 {
+            color: #1a6ba3;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            margin-top: 10px;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+        }
+
+        th {
+            background: #1a6ba3;
+            color: white;
+        }
+
+        a {
+            color: #1a6ba3;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .msg {
+            margin-top: 10px;
+        }
+    </style>
 </head>
+
 <body>
-    <h2>Past Appointments (Completed / Cancelled)</h2>
 
-    {% if past_appointments %}
-    <table border="1" cellpadding="5">
-        <tr>
-            <th>ID</th>
-            <th>Patient</th>
-            <th>Date</th>
-            <th>Time</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-        {% for appt in past_appointments %}
-        <tr>
-            <td>{{ appt.id }}</td>
-            <td>{{ appt.patient.user.name if appt.patient else 'Unknown' }}</td>
-            <td>{{ appt.date }}</td>
-            <td>{{ appt.time.strftime('%H:%M') }}</td>
-            <td>{{ appt.status }}</td>
-            <td>
-                <a href="{{ url_for('doctor.view_patient_history', patient_id=appt.patientid) }}">View History</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
-    {% else %}
-    <p>No past appointments found.</p>
-    {% endif %}
+<h2>Past Appointments (Completed / Cancelled)</h2>
 
-    <p><a href="{{ url_for('doctor.dashboard') }}">⬅ Back to Dashboard</a></p>
+{% if past_appointments %}
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Patient</th>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Status</th>
+        <th>Actions</th>
+    </tr>
+
+    {% for appt in past_appointments %}
+    <tr>
+        <td>{{ appt.id }}</td>
+        <td>{{ appt.patient.user.name if appt.patient else 'Unknown' }}</td>
+        <td>{{ appt.date }}</td>
+        <td>{{ appt.time.strftime('%H:%M') }}</td>
+        <td>{{ appt.status }}</td>
+        <td>
+            <a href="{{ url_for('doctor.view_patient_history', patient_id=appt.patientid) }}">
+                View History
+            </a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>No past appointments found.</p>
+{% endif %}
+
+<br>
+<a href="{{ url_for('doctor.dashboard') }}">⬅ Back to Dashboard</a>
+
+<!-- flash messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    {% for category, message in messages %}
+        <div class="msg" style="color: {% if category=='danger' %}red{% else %}green{% endif %};">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+{% endwith %}
+
 </body>
 </html>

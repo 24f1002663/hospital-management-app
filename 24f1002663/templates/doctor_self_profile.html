@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Doctor</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #e6f4ea;
+            font-family: Arial, sans-serif;
+        }
+        .box {
+            width: 430px;
+            margin: 60px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #199459;
+            text-align: center;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #0cab46;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #87e4aa;
+        }
+        a {
+            text-decoration: none;
+            color: #1c944a;
+            display: block;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .msg {
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+    <h2>My Profile</h2>
+
+    <form method="POST">
+
+        <label>Name</label>
+        <input type="text" name="name" value="{{ user.name }}" required>
+
+        <label>Email</label>
+        <input type="email" value="{{ user.email }}" disabled>
+
+        <label>Specialization</label>
+        <input type="text" name="specialization" value="{{ doctor.specialization }}" required>
+
+        <label>Department</label>
+        <input type="text" value="{{ department.name if department else 'Not Assigned' }}" disabled>
+
+        <label>Phone</label>
+        <input type="text" name="contact" value="{{ user.contact }}" required>
+
+        <label>New Password (optional)</label>
+        <input type="password" name="password">
+
+        <button type="submit">Update Profile</button>
+    </form>
+
+    <a href="{{ url_for('doctor.dashboard') }}">⬅ Back to Dashboard</a>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="msg" style="color: {% if category=='danger' %}red{% else %}green{% endif %};">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+</body>
+</html>

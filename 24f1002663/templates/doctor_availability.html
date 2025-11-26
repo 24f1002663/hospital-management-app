@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Availability</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: arial, sans-serif;
+            background: #e6f4ea; 
+        }
+
+        h2 {
+            color: #1b5e20; 
+        }
+
+        table {
+            width: 60%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: white;
+        }
+
+        th {
+            background: #2e7d32; 
+            color: white;
+            padding: 10px;
+        }
+
+        td {
+            padding: 8px;
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+
+        .available {
+            color: green;
+            font-weight: bold;
+        }
+
+        .unavailable {
+            color: red;
+            font-weight: bold;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #2e7d32;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>Availability for Dr. {{ doctor.user.name }}</h2>
+
+{% if availability %}
+<table>
+    <tr>
+        <th>Date</th>
+        <th>Day</th>
+        <th>Status</th>
+    </tr>
+
+    {% for a in availability %}
+    <tr>
+        <td>{{ a.date }}</td>
+        <td>{{ a.date.strftime('%A') }}</td>
+
+        <td class="{% if a.is_available %}available{% else %}unavailable{% endif %}">
+            {% if a.is_available %}
+                Available
+            {% else %}
+                Not Available
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% else %}
+<p>No availability found.</p>
+{% endif %}
+
+<br>
+<a href="{{ url_for('patient.view_doctors') }}">Back to Doctor List</a>
+
+</body>
+</html>

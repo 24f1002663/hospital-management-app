@@ -1,0 +1,277 @@
+openapi: 3.0.3
+info:
+  title: Hospital Management System - API
+  description: REST API definitions for Admin, Doctor, and Patient operations in the Hospital Management System.
+  version: 1.0.0
+  contact:
+    name: Sanya
+    email: 24f1002663@ds.study.iitm.ac.in
+
+servers:
+  - url: http://localhost:5000
+    description: Local Development Server
+
+tags:
+  - name: Authentication
+    description: Login, Registration, Logout
+  - name: Admin
+    description: Admin-side management of doctors, patients, and appointments
+  - name: Doctor
+    description: Doctor dashboard, treatments, and availability
+  - name: Patient
+    description: Patient dashboard, booking, profile management
+
+paths:
+
+  # ================= AUTH =================
+
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: User login
+      description: Login for admin, doctor, or patient
+      responses:
+        '200': { description: Login successful }
+        '400': { description: Invalid credentials }
+
+  /auth/register:
+    post:
+      tags: [Authentication]
+      summary: Patient registration
+      description: Create a new patient account
+      responses:
+        '201': { description: Patient registered }
+        '400': { description: Registration failed }
+
+  /auth/logout:
+    get:
+      tags: [Authentication]
+      summary: Logout user
+      responses:
+        '302': { description: Redirect after logout }
+
+
+  # ================= ADMIN =================
+
+  /admin/dashboard:
+    get:
+      tags: [Admin]
+      summary: Admin dashboard overview
+      description: Returns total doctors, patients, and appointments
+      responses:
+        '200': { description: Dashboard data }
+
+  /admin/doctor/register:
+    post:
+      tags: [Admin]
+      summary: Register a new doctor
+      responses:
+        '201': { description: Doctor registered }
+        '400': { description: Invalid data }
+
+  /admin/doctor/view:
+    get:
+      tags: [Admin]
+      summary: View all doctors
+      responses:
+        '200': { description: List of doctors }
+
+  /admin/doctor/update/{doctor_id}:
+    post:
+      tags: [Admin]
+      summary: Update doctor department/specialization
+      parameters:
+        - name: doctor_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Doctor updated }
+        '404': { description: Doctor not found }
+
+  /admin/doctor/search:
+    get:
+      tags: [Admin]
+      summary: Search doctors
+      responses:
+        '200': { description: Search results }
+
+  /admin/patient/search:
+    get:
+      tags: [Admin]
+      summary: Search patients
+      responses:
+        '200': { description: Patient results }
+
+  /admin/users/view:
+    get:
+      tags: [Admin]
+      summary: View all users
+      responses:
+        '200': { description: List of all users }
+
+  /admin/appointments:
+    get:
+      tags: [Admin]
+      summary: View all appointments
+      responses:
+        '200': { description: List of appointments }
+
+    post:
+      tags: [Admin]
+      summary: Create or update an appointment
+      responses:
+        '200': { description: Appointment saved }
+        '400': { description: Doctor unavailable or slot booked }
+
+  /admin/appointment/delete/{appointment_id}:
+    post:
+      tags: [Admin]
+      summary: Delete an appointment
+      parameters:
+        - name: appointment_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Appointment deleted }
+        '404': { description: Not found }
+
+  /admin/user/blacklist/{user_id}:
+    post:
+      tags: [Admin]
+      summary: Blacklist a user
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: User blacklisted }
+
+  /admin/user/unblacklist/{user_id}:
+    post:
+      tags: [Admin]
+      summary: Remove user from blacklist
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: User unblacklisted }
+
+
+  # ================= DOCTOR =================
+
+  /doctor/dashboard:
+    get:
+      tags: [Doctor]
+      summary: Doctor dashboard
+      responses:
+        '200': { description: Dashboard with appointments and schedule }
+
+  /doctor/treatment/{appointment_id}:
+    post:
+      tags: [Doctor]
+      summary: Add treatment notes & prescription
+      parameters:
+        - name: appointment_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '201': { description: Treatment added }
+
+  /doctor/patient/history/{patient_id}:
+    get:
+      tags: [Doctor]
+      summary: View full patient medical history
+      parameters:
+        - name: patient_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: History data }
+
+  /doctor/appointment/update/{appointment_id}:
+    post:
+      tags: [Doctor]
+      summary: Update appointment status
+      responses:
+        '200': { description: Status updated }
+
+  /doctor/update_availability:
+    post:
+      tags: [Doctor]
+      summary: Update weekly availability
+      responses:
+        '200': { description: Availability updated }
+
+  /doctor/past_appointments:
+    get:
+      tags: [Doctor]
+      summary: View past appointments
+      responses:
+        '200': { description: Past appointment list }
+
+
+  # ================= PATIENT =================
+
+  /patient/dashboard:
+    get:
+      tags: [Patient]
+      summary: Patient dashboard
+      responses:
+        '200': { description: Dashboard data }
+
+  /patient/view-doctors:
+    get:
+      tags: [Patient]
+      summary: View/search doctors
+      responses:
+        '200': { description: Doctor list }
+
+  /patient/doctor/availability/{doctor_id}:
+    get:
+      tags: [Patient]
+      summary: View doctor's weekly availability
+      parameters:
+        - name: doctor_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Availability list }
+
+  /patient/book:
+    post:
+      tags: [Patient]
+      summary: Book a new appointment
+      responses:
+        '201': { description: Appointment booked }
+        '400': { description: Slot conflict / doctor unavailable }
+
+  /patient/cancel/{appointment_id}:
+    post:
+      tags: [Patient]
+      summary: Cancel patient appointment
+      responses:
+        '200': { description: Appointment cancelled }
+
+  /patient/profile:
+    post:
+      tags: [Patient]
+      summary: Update patient profile
+      responses:
+        '200': { description: Profile updated }
+
+components:
+  responses:
+    Unauthorized:
+      description: Unauthorized access
+    NotFound:
+      description: Resource not found
+    BadRequest:
+      description: Invalid request

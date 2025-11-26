@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Appointment</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #e6f4ea; 
+            font-family: arial, sans-serif;
+        }
+
+        .box {
+            width: 450px;
+            margin: 30px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #1b5e20;
+            text-align: center;
+            margin-top: 0;
+        }
+
+        label {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        select, input[type="date"], input[type="time"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 6px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 15px;
+            background: #2e7d32;
+            padding: 10px;
+            color: white;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background: #1b5e20;
+        }
+
+        a {
+            text-decoration: none;
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .msg {
+            text-align: center;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+
+    <h2>Book Appointment</h2>
+
+    <form method="POST">
+
+        <label>Select Doctor:</label>
+        <select name="doctorid" required>
+            <option value="">-- Select Doctor --</option>
+
+            {% for d in doctors %}
+            <option value="{{ d.id }}"
+                {% if doctorid and doctorid|int == d.id %}selected{% endif %}>
+                {{ d.user.name }} - {{ d.specialization }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <br><br>
+
+        <label>Select Date:</label>
+        <input type="date" name="date" required>
+
+        <br><br>
+
+        <label>Select Time:</label>
+        <input type="time" name="time" required>
+
+        <button type="submit">Book Appointment</button>
+
+    </form>
+
+    <br>
+    <a href="{{ url_for('patient.dashboard') }}">⬅ Back to Dashboard</a>
+
+</div>
+
+<!-- flash messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="msg" style="color: {% if category=='danger' %}red{% else %}green{% endif %};">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+</body>
+</html>

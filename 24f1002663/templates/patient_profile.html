@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #e6f4ea;
+            font-family: Arial, sans-serif;
+        }
+
+        .box {
+            width: 430px;
+            margin: 60px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #199459;
+            text-align: center;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #0cab46;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #87e4aa;
+        }
+
+        a {
+            text-decoration: none;
+            color: #1c944a;
+            display: block;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .msg {
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+    <h2>Edit Profile</h2>
+
+    <form method="POST">
+
+        Name:
+        <input type="text" name="name" value="{{ user.name }}" required>
+
+        Email:
+        <input type="email" name="email" value="{{ user.email }}" required>
+
+        Contact:
+        <input type="text" name="contact" value="{{ user.contact }}" required>
+
+        Date of Birth:
+        <input type="date" name="dob" value="{{ patient.dob }}">
+
+        Gender:
+        <select name="gender">
+            <option value="M" {% if patient.gender == 'M' %}selected{% endif %}>Male</option>
+            <option value="F" {% if patient.gender == 'F' %}selected{% endif %}>Female</option>
+        </select>
+
+        New Password (optional):
+        <input type="password" name="password">
+
+        <button type="submit">Update Profile</button>
+    </form>
+
+    <a href="{{ url_for('patient.dashboard') }}">Back</a>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="msg" style="color: {% if category=='danger' %}red{% else %}green{% endif %};">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+</body>
+</html>

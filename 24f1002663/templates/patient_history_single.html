@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment Details</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: arial, sans-serif;
+            background: #e6f4ea; /* light green */
+        }
+
+        .box {
+            width: 600px;
+            margin: 30px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.1);
+        }
+
+        h2, h3 {
+            color: #1b5e20; /* dark green */
+            margin-top: 0;
+        }
+
+        p {
+            font-size: 15px;
+            margin: 8px 0;
+        }
+
+        b {
+            color: #2e7d32;
+        }
+
+        hr {
+            margin: 18px 0;
+            border: 0.5px solid #ccc;
+        }
+
+        a {
+            text-decoration: none;
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+
+    <h2>Appointment Details</h2>
+
+    <p><b>Doctor:</b> {{ appointment.doctor.user.name }}</p>
+    <p><b>Date:</b> {{ appointment.date }}</p>
+    <p><b>Time:</b> {{ appointment.time }}</p>
+    <p><b>Status:</b> {{ appointment.status }}</p>
+
+    <hr>
+
+    <h3>Treatment Information</h3>
+
+    {% if treatments %}
+        {% for t in treatments %}
+            <p><b>Diagnosis:</b> {{ t.diagnosis }}</p>
+            <p><b>Procedure:</b> {{ t.procedure }}</p>
+
+            <p><b>Prescriptions:</b></p>
+            {% for p in t.prescriptions %}
+                - {{ p.medication }}<br>
+            {% endfor %}
+            <hr>
+        {% endfor %}
+    {% else %}
+        <p>No treatment recorded.</p>
+    {% endif %}
+
+    <br>
+    <a href="{{ url_for('patient.dashboard') }}">⬅ Back to Dashboard</a>
+
+</div>
+
+</body>
+</html>

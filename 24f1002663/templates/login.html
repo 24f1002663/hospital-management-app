@@ -3,45 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hospital Management</title>
+    <title>hospital management</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: arial, sans-serif;
+            background: #e6f4ea; /* green background */
+        }
+
+        .box {
+            width: 380px;
+            margin: 70px auto;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        /* heading text */
+        h1 {
+            color: #2e7d32; /* green heading */
+            margin-bottom: 10px;
+        }
+
+        /* input fields */
+        input[type="email"], input[type="password"] {
+            width: 80%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #bbb;
+            border-radius: 5px;
+        }
+
+        /* login button */
+        .btn {
+            width: 80%;
+            padding: 12px;
+            background: #2e7d32;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            margin-top: 10px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .btn:hover {
+            background: #1b5e20;
+        }
+
+        /* message text */
+        .msg {
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        /* scrolling bar */
+        .marq {
+            margin-top: 20px;
+            background: #2e7d32;
+            color: white;
+            padding: 5px;
+        }
+    </style>
 </head>
-<body bgcolor="lightblue">
 
-<center>
-<h1>User Login</h1>
-<hr>
+<body>
 
-<!-- Flash messages -->
+<!-- showing the pops -->
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
         {% for category, message in messages %}
-            <div style="color: {% if category=='danger' %}red{% elif category=='success' %}green{% else %}black{% endif %};">
+            <div class="msg" style="color: {% if category=='danger' %}red{% elif category=='success' %}green{% else %}black{% endif %};">
                 {{ message }}
             </div>
         {% endfor %}
     {% endif %}
 {% endwith %}
 
-<form method="POST" action="{{ url_for('auth.login') }}">
-    Email:<br>
-    <input type="email" name="email" placeholder="Enter your email" required><br><br>
-    
-    Password:<br>
-    <input type="password" name="password" placeholder="Enter your password" required><br><br>
-    
-    <input type="submit" value="Login">
-</form>
+<!-- main login card -->
+<div class="box">
 
-<br>
-<!-- Register link -->
-<p>Don’t have an account? <a href="{{ url_for('auth.register') }}">Register here</a></p>
+    <h1>User Login</h1>
+    <hr>
 
-<!-- Back to home link -->
-<p><a href="{{ url_for('index') }}">← Back to Home</a></p>
+    <!-- login form -->
+    <form method="POST" action="{{ url_for('auth.login') }}">
+        <label>email</label><br>
+        <input type="email" name="email" placeholder="enter your email" required><br>
 
-<!-- Optional marquee for fun beginner-style effect -->
-<marquee bgcolor="blue" scrollamount="10">💊 Welcome to Hospital Management System! 💊</marquee>
+        <label>password</label><br>
+        <input type="password" name="password" placeholder="enter your password" required><br>
 
-</center>
+        <button class="btn" type="submit">login</button>
+    </form>
+
+    <p>Don’t have an account? <a href="{{ url_for('auth.register') }}">Register here</a></p>
+    <p><a href="{{ url_for('index') }}"> Back to Home</a></p>
+
+    <div class="marq">
+        <marquee scrollamount="8">Welcome to the Hospital Management System</marquee>
+    </div>
+
+</div>
+
 </body>
 </html>
